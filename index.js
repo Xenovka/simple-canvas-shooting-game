@@ -1,6 +1,8 @@
 const canvas = document.querySelector("canvas");
 const c = canvas.getContext("2d");
 
+const scoreEl = document.querySelector("#scoreEl");
+
 /**
  * * Define canvas width & height with innerWidth and innerHeight.
  * * innerWidth & innerHeight defines current window width & height even it gets resized.
@@ -166,6 +168,7 @@ function spawnEnemies() {
 }
 
 let animationId;
+let score = 0;
 
 function animate() {
   animationId = requestAnimationFrame(animate);
@@ -227,6 +230,11 @@ function animate() {
          * * Shrinking enemies that have radius more than 5
          */
         if (enemy.radius - 10 > 5) {
+          /**
+           * * When enemy got shrinked, player's score increase by 100
+           */
+          score += 100;
+          scoreEl.innerHTML = score;
           gsap.to(enemy, {
             radius: enemy.radius - 10
           });
@@ -234,6 +242,12 @@ function animate() {
             projectiles.splice(projectileIndex, 1);
           }, 0);
         } else {
+          /**
+           * * Remove enemy when its radius below 5
+           * * When enemy's killed, player's score increase by 150
+           */
+          score += 150;
+          scoreEl.innerHTML = score;
           setTimeout(() => {
             enemies.splice(index, 1);
             projectiles.splice(projectileIndex, 1);
