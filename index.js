@@ -3,8 +3,10 @@ const c = canvas.getContext("2d");
 
 const scoreEl = document.querySelector("#scoreEl");
 const modalEl = document.querySelector("#modalEl");
+const startModalEl = document.querySelector("#startModalEl");
 const modalScoreEl = document.querySelector("#modalScoreEl");
 const buttonEl = document.querySelector("#buttonEl");
+const startButtonEl = document.querySelector("#startButtonEl");
 
 /**
  * * Define canvas width & height with innerWidth and innerHeight.
@@ -306,5 +308,9 @@ buttonEl.addEventListener("click", () => {
   modalEl.style.display = "none";
 });
 
-animate();
-spawnEnemies();
+startButtonEl.addEventListener("click", () => {
+  init();
+  animate();
+  spawnEnemies();
+  startModalEl.style.display = "none";
+});
