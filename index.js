@@ -4,6 +4,7 @@ const c = canvas.getContext("2d");
 const scoreEl = document.querySelector("#scoreEl");
 const modalEl = document.querySelector("#modalEl");
 const modalScoreEl = document.querySelector("#modalScoreEl");
+const buttonEl = document.querySelector("#buttonEl");
 
 /**
  * * Define canvas width & height with innerWidth and innerHeight.
@@ -137,13 +138,25 @@ class Particles {
 const x = canvas.width / 2;
 const y = canvas.height / 2;
 
-const player = new Player(x, y, 15, "white");
-const projectiles = [];
-const enemies = [];
-const particles = [];
+let player = new Player(x, y, 15, "white");
+let projectiles = [];
+let enemies = [];
+let particles = [];
+let animationId;
+let intervalId;
+let score = 0;
+
+function init() {
+  player = new Player(x, y, 15, "white");
+  projectiles = [];
+  enemies = [];
+  particles = [];
+  animationId;
+  score = 0;
+}
 
 function spawnEnemies() {
-  setInterval(() => {
+  intervalId = setInterval(() => {
     const radius = Math.random() * (30 - 8) + 8;
 
     let x;
@@ -168,9 +181,6 @@ function spawnEnemies() {
     enemies.push(new Enemy(x, y, radius, color, velocity));
   }, 1000);
 }
-
-let animationId;
-let score = 0;
 
 function animate() {
   animationId = requestAnimationFrame(animate);
@@ -209,6 +219,10 @@ function animate() {
 
     enemy.update();
 
+    /**
+     * * Count the distance between player and enemy
+     * * It'll be used to know the enemy hits the player
+     */
     const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
 
     /**
@@ -216,6 +230,7 @@ function animate() {
      */
     if (dist - enemy.radius - player.radius < 1) {
       cancelAnimationFrame(animationId);
+      clearInterval(intervalId);
       modalEl.style.display = "block";
       modalScoreEl.innerHTML = score;
     }
@@ -282,6 +297,13 @@ window.addEventListener("click", (e) => {
   };
 
   projectiles.push(new Projectile(canvas.width / 2, canvas.height / 2, 5, "white", velocity));
+});
+
+buttonEl.addEventListener("click", () => {
+  init();
+  animate();
+  spawnEnemies();
+  modalEl.style.display = "none";
 });
 
 animate();
