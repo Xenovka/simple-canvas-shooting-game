@@ -28,6 +28,10 @@ class Player {
     this.y = y;
     this.radius = radius;
     this.color = color;
+    this.velocity = {
+      x: 0,
+      y: 0
+    };
   }
 
   /**
@@ -39,6 +43,30 @@ class Player {
     c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
     c.fillStyle = this.color;
     c.fill();
+  }
+
+  update() {
+    this.draw();
+
+    const friction = 0.99;
+
+    this.velocity.x *= friction;
+    this.velocity.y *= friction;
+
+    /**
+     * * Collision detection for x axis and y axis
+     */
+    if (this.x + this.radius + this.velocity.x <= canvas.width && this.x - this.radius + this.velocity.x >= 0) {
+      this.x += this.velocity.x;
+    } else {
+      this.velocity.x = 0;
+    }
+
+    if (this.y + this.radius + this.velocity.y <= canvas.height && this.y - this.radius + this.velocity.y >= 0) {
+      this.y += this.velocity.y;
+    } else {
+      this.velocity.y = 0;
+    }
   }
 }
 
@@ -215,7 +243,7 @@ function animate() {
       projectiles.splice(index, 1);
     }
   }
-  player.draw();
+  player.update();
 
   for (let index = enemies.length - 1; index >= 0; index--) {
     const enemy = enemies[index];
@@ -305,13 +333,13 @@ window.addEventListener("click", (e) => {
    * * cosine and sine together going to procude two different results that have perfect ratio to start
    * * pushing the projectile wherever mouse clicked on the screen.
    */
-  const angle = Math.atan2(e.clientY - canvas.height / 2, e.clientX - canvas.width / 2);
+  const angle = Math.atan2(e.clientY - player.y, e.clientX - player.x);
   const velocity = {
     x: Math.cos(angle) * 4,
     y: Math.sin(angle) * 4
   };
 
-  projectiles.push(new Projectile(canvas.width / 2, canvas.height / 2, 5, "white", velocity));
+  projectiles.push(new Projectile(player.x, player.y, 5, "white", velocity));
 });
 
 /**
@@ -350,4 +378,21 @@ startButtonEl.addEventListener("click", () => {
       startModalEl.style.display = "none";
     }
   });
+});
+
+window.addEventListener("keydown", (event) => {
+  switch (event.key) {
+    case "ArrowRight":
+      player.velocity.x += 1;
+      break;
+    case "ArrowUp":
+      player.velocity.y -= 1;
+      break;
+    case "ArrowDown":
+      player.velocity.y += 1;
+      break;
+    case "ArrowLeft":
+      player.velocity.x -= 1;
+      break;
+  }
 });
