@@ -32,6 +32,9 @@ let intervalId;
 let score = 0;
 let frames = 0;
 let backgroundParticles = [];
+let game = {
+  active: false
+};
 
 function init() {
   player = new Player(x, y, 15, "white");
@@ -44,6 +47,9 @@ function init() {
   scoreEl.innerHTML = 0;
   frames = 0;
   backgroundParticles = [];
+  game = {
+    active: true
+  };
 
   const spacing = 30;
 
@@ -191,6 +197,7 @@ function animate() {
       powerUps.splice(i, 1);
       player.powerUp = "MachineGun";
       player.color = "yellow";
+      audio.powerUpNoise.play();
       setTimeout(() => {
         player.powerUp = null;
         player.color = "white";
@@ -211,6 +218,10 @@ function animate() {
     if (frames % 2 === 0) {
       projectiles.push(new Projectile(player.x, player.y, 5, "yellow", velocity));
     }
+
+    if (frames % 5 === 0) {
+      audio.shoot.play();
+    }
   }
 
   for (let index = enemies.length - 1; index >= 0; index--) {
@@ -230,6 +241,10 @@ function animate() {
     if (dist - enemy.radius - player.radius < 1) {
       cancelAnimationFrame(animationId);
       clearInterval(intervalId);
+
+      audio.death.play();
+      game.active = false;
+
       modalEl.style.display = "block";
       gsap.fromTo(
         "#modalEl",
@@ -268,6 +283,7 @@ function animate() {
          * * Shrinking enemies that have radius more than 5
          */
         if (enemy.radius - 10 > 5) {
+          audio.damageTaken.play();
           /**
            * * When enemy got shrinked, player's score increase by 100
            */
@@ -285,6 +301,7 @@ function animate() {
           });
           projectiles.splice(projectileIndex, 1);
         } else {
+          audio.explode.play();
           /**
            * * Remove enemy when its radius below 5
            * * When enemy's killed, player's score increase by 150
@@ -322,21 +339,25 @@ function animate() {
 }
 
 window.addEventListener("click", (e) => {
-  /**
-   * * Math.atan2() produces angle depends on the mouse click coordinates.
-   * * Math.cos() always for the x-axis angle.
-   * * Math.sin() always for the y-axis angle.
-   * * both cosine and sine will return the value of -1 to 1.
-   * * cosine and sine together going to procude two different results that have perfect ratio to start
-   * * pushing the projectile wherever mouse clicked on the screen.
-   */
-  const angle = Math.atan2(e.clientY - player.y, e.clientX - player.x);
-  const velocity = {
-    x: Math.cos(angle) * 4,
-    y: Math.sin(angle) * 4
-  };
+  if (game.active) {
+    /**
+     * * Math.atan2() produces angle depends on the mouse click coordinates.
+     * * Math.cos() always for the x-axis angle.
+     * * Math.sin() always for the y-axis angle.
+     * * both cosine and sine will return the value of -1 to 1.
+     * * cosine and sine together going to procude two different results that have perfect ratio to start
+     * * pushing the projectile wherever mouse clicked on the screen.
+     */
+    const angle = Math.atan2(e.clientY - player.y, e.clientX - player.x);
+    const velocity = {
+      x: Math.cos(angle) * 4,
+      y: Math.sin(angle) * 4
+    };
 
-  projectiles.push(new Projectile(player.x, player.y, 5, "white", velocity));
+    projectiles.push(new Projectile(player.x, player.y, 5, "white", velocity));
+
+    audio.shoot.play();
+  }
 });
 
 const mouse = {
@@ -353,6 +374,7 @@ addEventListener("mousemove", (event) => {
  * * Restart the game
  */
 buttonEl.addEventListener("click", () => {
+  audio.select.play();
   init();
   animate();
   spawnEnemies();
@@ -373,6 +395,7 @@ buttonEl.addEventListener("click", () => {
  * * Start the game
  */
 startButtonEl.addEventListener("click", () => {
+  audio.select.play();
   init();
   animate();
   spawnEnemies();
