@@ -339,6 +339,10 @@ function animate() {
 }
 
 window.addEventListener("click", (e) => {
+  if (!audio.background.playing()) {
+    audio.background.play();
+  }
+
   if (game.active) {
     /**
      * * Math.atan2() produces angle depends on the mouse click coordinates.
