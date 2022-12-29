@@ -31,6 +31,7 @@ let animationId;
 let intervalId;
 let score = 0;
 let frames = 0;
+let backgroundParticles = [];
 
 function init() {
   player = new Player(x, y, 15, "white");
@@ -42,6 +43,22 @@ function init() {
   score = 0;
   scoreEl.innerHTML = 0;
   frames = 0;
+  backgroundParticles = [];
+
+  const spacing = 30;
+
+  for (let x = 0; x < canvas.width + spacing; x += spacing) {
+    for (let y = 0; y < canvas.height + spacing; y += spacing) {
+      backgroundParticles.push(
+        new BackgroundParticle({
+          position: {
+            x,
+            y
+          }
+        })
+      );
+    }
+  }
 }
 
 function spawnEnemies() {
@@ -116,6 +133,22 @@ function animate() {
   c.fillStyle = "rgba(0,0,0, .1)";
   c.fillRect(0, 0, canvas.width, canvas.height);
   frames++;
+
+  backgroundParticles.forEach((backgroundParticle) => {
+    backgroundParticle.draw();
+
+    const dist = Math.hypot(player.x - backgroundParticle.position.x, player.y - backgroundParticle.position.y);
+    if (dist < 100) {
+      backgroundParticle.alpha = 0;
+      if (dist > 70) {
+        backgroundParticle.alpha = 0.5;
+      }
+    } else if (dist > 100 && backgroundParticle.alpha < 0.1) {
+      backgroundParticle.alpha += 0.01;
+    } else if (dist > 100 && backgroundParticle.alpha > 0.1) {
+      backgroundParticle.alpha -= 0.01;
+    }
+  });
 
   for (let index = particles.length - 1; index >= 0; index--) {
     const particle = particles[index];
@@ -264,6 +297,21 @@ function animate() {
               y: projectile.y
             },
             score: 150
+          });
+
+          /**
+           * * Change background particle color based on enemy's color
+           */
+          backgroundParticles.forEach((backgroundParticle) => {
+            gsap.set(backgroundParticle, {
+              color: "white",
+              alpha: 1
+            });
+            gsap.to(backgroundParticle, {
+              color: enemy.color,
+              alpha: 0.1
+            });
+            backgroundParticle.color = enemy.color;
           });
           enemies.splice(index, 1);
           projectiles.splice(projectileIndex, 1);
