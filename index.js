@@ -243,6 +243,7 @@ function animate() {
     if (dist - enemy.radius - player.radius < 1) {
       cancelAnimationFrame(animationId);
       clearInterval(intervalId);
+      clearInterval(spawnPowerUpsId);
 
       audio.death.play();
       game.active = false;
@@ -476,6 +477,20 @@ window.addEventListener("resize", () => {
   canvas.height = innerHeight;
 
   init();
+});
+
+document.addEventListener("visibilitychange", () => {
+  /**
+   * * Clearing intervals when tab user switches tab
+   * * When user back to game's tab, start spawning enemies
+   */
+  if (document.hidden) {
+    clearInterval(intervalId);
+    clearInterval(spawnPowerUpsId);
+  } else {
+    spawnEnemies();
+    spawnPowerUps();
+  }
 });
 
 window.addEventListener("keydown", (event) => {
