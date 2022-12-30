@@ -7,6 +7,8 @@ const startModalEl = document.querySelector("#startModalEl");
 const modalScoreEl = document.querySelector("#modalScoreEl");
 const buttonEl = document.querySelector("#buttonEl");
 const startButtonEl = document.querySelector("#startButtonEl");
+const volumeUpEl = document.querySelector("#volumeUpEl");
+const volumeOffEl = document.querySelector("#volumeOffEl");
 
 /**
  * * Define canvas width & height with innerWidth and innerHeight.
@@ -338,9 +340,12 @@ function animate() {
   }
 }
 
+let audioInitialized = false;
+
 window.addEventListener("click", (e) => {
-  if (!audio.background.playing()) {
+  if (!audio.background.playing() && !audioInitialized) {
     audio.background.play();
+    audioInitialized = true;
   }
 
   if (game.active) {
@@ -370,6 +375,7 @@ const mouse = {
     y: 0
   }
 };
+
 addEventListener("mousemove", (event) => {
   (mouse.position.x = event.clientX), (mouse.position.y = event.clientY);
 });
@@ -414,6 +420,35 @@ startButtonEl.addEventListener("click", () => {
       startModalEl.style.display = "none";
     }
   });
+});
+
+/**
+ * * Mute all sounds
+ */
+volumeUpEl.addEventListener("click", () => {
+  audio.background.pause();
+  volumeOffEl.style.display = "block";
+  volumeUpEl.style.display = "none";
+
+  for (let key in audio) {
+    audio[key].mute(true);
+  }
+});
+
+/**
+ * * Unmute all sounds
+ */
+volumeOffEl.addEventListener("click", () => {
+  if (audioInitialized) {
+    audio.background.play();
+  }
+
+  volumeOffEl.style.display = "none";
+  volumeUpEl.style.display = "block";
+
+  for (let key in audio) {
+    audio[key].mute(false);
+  }
 });
 
 window.addEventListener("keydown", (event) => {
