@@ -17,14 +17,7 @@ const volumeOffEl = document.querySelector("#volumeOffEl");
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
-/**
- * * set the x & y position.
- * * it gets divided by 2 to make it in the center of the canvas.
- */
-const x = canvas.width / 2;
-const y = canvas.height / 2;
-
-let player = new Player(x, y, 15, "white");
+let player;
 let projectiles = [];
 let enemies = [];
 let particles = [];
@@ -39,6 +32,12 @@ let game = {
 };
 
 function init() {
+  /**
+   * * set the x & y position.
+   * * it gets divided by 2 to make it in the center of the canvas.
+   */
+  const x = canvas.width / 2;
+  const y = canvas.height / 2;
   player = new Player(x, y, 15, "white");
   projectiles = [];
   enemies = [];
@@ -449,6 +448,13 @@ volumeOffEl.addEventListener("click", () => {
   for (let key in audio) {
     audio[key].mute(false);
   }
+});
+
+window.addEventListener("resize", () => {
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+
+  init();
 });
 
 window.addEventListener("keydown", (event) => {
