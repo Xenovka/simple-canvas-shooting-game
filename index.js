@@ -123,6 +123,7 @@ function createScoreLabel({ position, score }) {
   scoreLabel.style.left = position.x + "px";
   scoreLabel.style.top = position.y + "px";
   scoreLabel.style.userSelect = "none";
+  scoreLabel.style.pointerEvents = "none";
   document.body.appendChild(scoreLabel);
 
   gsap.to(scoreLabel, {
@@ -341,12 +342,7 @@ function animate() {
 
 let audioInitialized = false;
 
-window.addEventListener("click", (e) => {
-  if (!audio.background.playing() && !audioInitialized) {
-    audio.background.play();
-    audioInitialized = true;
-  }
-
+function shoot({ x, y }) {
   if (game.active) {
     /**
      * * Math.atan2() produces angle depends on the mouse click coordinates.
@@ -356,7 +352,7 @@ window.addEventListener("click", (e) => {
      * * cosine and sine together going to procude two different results that have perfect ratio to start
      * * pushing the projectile wherever mouse clicked on the screen.
      */
-    const angle = Math.atan2(e.clientY - player.y, e.clientX - player.x);
+    const angle = Math.atan2(y - player.y, x - player.x);
     const velocity = {
       x: Math.cos(angle) * 4,
       y: Math.sin(angle) * 4
@@ -366,6 +362,25 @@ window.addEventListener("click", (e) => {
 
     audio.shoot.play();
   }
+}
+
+window.addEventListener("click", (e) => {
+  if (!audio.background.playing() && !audioInitialized) {
+    audio.background.play();
+    audioInitialized = true;
+  }
+
+  shoot({ x: e.clientX, y: e.clientY });
+});
+
+window.addEventListener("touchstart", (event) => {
+  const x = event.touches[0].clientX;
+  const y = event.touches[0].clientY;
+
+  mouse.position.x = event.touches[0].clientX;
+  mouse.position.y = event.touches[0].clientY;
+
+  shoot({ x, y });
 });
 
 const mouse = {
@@ -376,7 +391,13 @@ const mouse = {
 };
 
 addEventListener("mousemove", (event) => {
-  (mouse.position.x = event.clientX), (mouse.position.y = event.clientY);
+  mouse.position.x = event.clientX;
+  mouse.position.y = event.clientY;
+});
+
+addEventListener("touchmove", (event) => {
+  mouse.position.x = event.touches[0].clientX;
+  mouse.position.y = event.touches[0].clientY;
 });
 
 /**
